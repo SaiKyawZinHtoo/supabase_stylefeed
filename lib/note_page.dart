@@ -10,10 +10,10 @@ class NotePage extends StatefulWidget {
 }
 
 class _NotePageState extends State<NotePage> {
-  //notes db
+  // Notes database
   final notesDatabase = NoteDatabase();
 
-  //text controller
+  // Text controller
   final textController = TextEditingController();
 
   @override
@@ -22,56 +22,84 @@ class _NotePageState extends State<NotePage> {
     super.dispose();
   }
 
-  // user wants to create a new note
+  // Add a new note
   void addNewNote() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("New Notes"),
-        content: TextField(
-          controller: textController,
-        ),
-        actions: [
-          //cancel button
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              textController.clear();
-            },
-            child: const Text("Cancel"),
-          ),
-          //save button
-          TextButton(
-            onPressed: () async {
-              //create a new note
-              final newNote = Note(
-                content: textController.text,
-              );
-              //save in db
-              await notesDatabase.createNote(newNote);
-              Navigator.pop(context);
-              textController.clear();
-              setState(() {}); // Update the UI
-            },
-            child: const Text("Save"),
-          )
-        ],
-      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("New Note"),
+              content: TextField(
+                controller: textController,
+                autofocus: true,
+                onChanged: (value) {
+                  // Trigger a rebuild to enable/disable the Save button
+                  setState(() {});
+                },
+                decoration: const InputDecoration(
+                  hintText: "Enter your note here...",
+                ),
+              ),
+              actions: [
+                // Cancel button
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    textController.clear();
+                  },
+                  child: const Text("Cancel"),
+                ),
+                // Save button
+                TextButton(
+                  onPressed: textController.text.trim().isEmpty
+                      ? null
+                      : () async {
+                          try {
+                            final newNote = Note(
+                              content: textController.text.trim(),
+                            );
+                            await notesDatabase.createNote(newNote);
+                            Navigator.pop(context);
+                            textController.clear();
+                            setState(() {});
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Note added successfully!")),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Failed to add note: $e")),
+                            );
+                          }
+                        },
+                  child: const Text("Save"),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
-  // user wants to update a note
+  // Update a note
   void updateNote(Note note) {
     textController.text = note.content;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Updated Notes"),
+        title: const Text("Update Note"),
         content: TextField(
           controller: textController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: "Edit your note...",
+          ),
         ),
         actions: [
-          //cancel button
+          // Cancel button
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -79,101 +107,125 @@ class _NotePageState extends State<NotePage> {
             },
             child: const Text("Cancel"),
           ),
-          //save button
+          // Save button
           TextButton(
-            onPressed: () async {
-              await notesDatabase.updateNote(note, textController.text);
-              Navigator.pop(context);
-              textController.clear();
-              setState(() {}); // Update the UI
-            },
+            onPressed: textController.text.trim().isEmpty
+                ? null
+                : () async {
+                    try {
+                      await notesDatabase.updateNote(
+                          note, textController.text.trim());
+                      Navigator.pop(context);
+                      textController.clear();
+                      setState(() {});
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("Note updated successfully!")),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed to update note: $e")),
+                      );
+                    }
+                  },
             child: const Text("Save"),
-          )
+          ),
         ],
       ),
     );
   }
 
-  // user wants to delete a note
-  void deleteNote(Note note) async {
+  // Confirm before deleting a note
+  void confirmDelete(Note note) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Delete Notes"),
+        title: const Text("Delete Note"),
+        content: const Text("Are you sure you want to delete this note?"),
         actions: [
-          //cancel button
+          // Cancel button
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              textController.clear();
             },
             child: const Text("Cancel"),
           ),
-          //save button
+          // Delete button
           TextButton(
             onPressed: () async {
-              await notesDatabase.delete(note);
-              Navigator.pop(context);
-              textController.clear();
-              setState(() {}); // Update the UI
+              try {
+                await notesDatabase.delete(note);
+                Navigator.pop(context);
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Note deleted successfully!")),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Failed to delete note: $e")),
+                );
+              }
             },
-            child: const Text("Save"),
-          )
+            child: const Text("Delete"),
+          ),
         ],
       ),
     );
   }
 
-  //Build the UI
+  // Build the UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //app bar
       appBar: AppBar(
-        title: Text("Notes"),
+        title: const Text("Notes"),
       ),
-      //body -> StreamBuilder
       body: StreamBuilder<List<Note>>(
-          stream: notesDatabase.stream,
-          builder: (context, snapshot) {
-            //loading..
-            if (!snapshot.hasData) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            //loading!
-            final notes = snapshot.data!;
-
-            return ListView.builder(
-              itemCount: notes.length,
-              itemBuilder: (context, index) {
-                final note = notes[index];
-                return ListTile(
-                  title: Text(note.content),
-                  trailing: SizedBox(
-                    width: 100,
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () => updateNote(note),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => deleteNote(note),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+        stream: notesDatabase.stream,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(),
             );
-          }),
-      //button
+          }
+
+          final notes = snapshot.data!;
+          if (notes.isEmpty) {
+            return const Center(
+              child: Text("No notes yet. Tap + to add a new note."),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: notes.length,
+            itemBuilder: (context, index) {
+              final note = notes[index];
+              return ListTile(
+                title: Text(note.content),
+                trailing: SizedBox(
+                  width: 100,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => updateNote(note),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => confirmDelete(note),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: addNewNote,
-        child: Icon(Icons.add),
+        tooltip: "Add Note",
+        child: const Icon(Icons.add),
       ),
     );
   }
