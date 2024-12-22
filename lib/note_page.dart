@@ -10,10 +10,7 @@ class NotePage extends StatefulWidget {
 }
 
 class _NotePageState extends State<NotePage> {
-  // Notes database
   final notesDatabase = NoteDatabase();
-
-  // Text controller
   final textController = TextEditingController();
 
   @override
@@ -22,7 +19,6 @@ class _NotePageState extends State<NotePage> {
     super.dispose();
   }
 
-  // Add a new note
   void addNewNote() {
     showDialog(
       context: context,
@@ -30,20 +26,22 @@ class _NotePageState extends State<NotePage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               title: const Text("New Note"),
               content: TextField(
                 controller: textController,
                 autofocus: true,
                 onChanged: (value) {
-                  // Trigger a rebuild to enable/disable the Save button
                   setState(() {});
                 },
                 decoration: const InputDecoration(
                   hintText: "Enter your note here...",
+                  border: OutlineInputBorder(),
                 ),
               ),
               actions: [
-                // Cancel button
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
@@ -51,7 +49,6 @@ class _NotePageState extends State<NotePage> {
                   },
                   child: const Text("Cancel"),
                 ),
-                // Save button
                 TextButton(
                   onPressed: textController.text.trim().isEmpty
                       ? null
@@ -84,22 +81,24 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
-  // Update a note
   void updateNote(Note note) {
     textController.text = note.content;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
         title: const Text("Update Note"),
         content: TextField(
           controller: textController,
           autofocus: true,
           decoration: const InputDecoration(
             hintText: "Edit your note...",
+            border: OutlineInputBorder(),
           ),
         ),
         actions: [
-          // Cancel button
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -107,7 +106,6 @@ class _NotePageState extends State<NotePage> {
             },
             child: const Text("Cancel"),
           ),
-          // Save button
           TextButton(
             onPressed: textController.text.trim().isEmpty
                 ? null
@@ -135,22 +133,22 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
-  // Confirm before deleting a note
   void confirmDelete(Note note) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
         title: const Text("Delete Note"),
         content: const Text("Are you sure you want to delete this note?"),
         actions: [
-          // Cancel button
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
             child: const Text("Cancel"),
           ),
-          // Delete button
           TextButton(
             onPressed: () async {
               try {
@@ -173,7 +171,6 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
-  // Build the UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,8 +188,19 @@ class _NotePageState extends State<NotePage> {
 
           final notes = snapshot.data!;
           if (notes.isEmpty) {
-            return const Center(
-              child: Text("No notes yet. Tap + to add a new note."),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.note_alt, size: 100, color: Colors.grey),
+                  SizedBox(height: 20),
+                  Text(
+                    "No notes yet.\nTap + to add a new note.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                ],
+              ),
             );
           }
 
@@ -200,18 +208,19 @@ class _NotePageState extends State<NotePage> {
             itemCount: notes.length,
             itemBuilder: (context, index) {
               final note = notes[index];
-              return ListTile(
-                title: Text(note.content),
-                trailing: SizedBox(
-                  width: 100,
-                  child: Row(
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  title: Text(note.content),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.edit),
+                        icon: const Icon(Icons.edit, color: Colors.blue),
                         onPressed: () => updateNote(note),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete),
+                        icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () => confirmDelete(note),
                       ),
                     ],
