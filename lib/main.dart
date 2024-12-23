@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:superbase_project/auth/auth_gate.dart';
 import 'package:superbase_project/note_page.dart';
 
 void main() async {
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: NotePage(),
+      home: AuthGate(),
     );
   }
 }
