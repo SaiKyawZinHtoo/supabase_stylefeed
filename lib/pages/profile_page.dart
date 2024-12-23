@@ -9,26 +9,86 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  //get auth service
+  // Get auth service
   final authService = AuthService();
 
-  //sign out
+  // Sign out
   void logout() async {
     await authService.signOut();
+    Navigator.pushReplacementNamed(
+        context, '/login'); // Navigate to login after logout
   }
 
   @override
   Widget build(BuildContext context) {
     final currentUser = authService.getCurrentUserEmail();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
         actions: [
-          IconButton(icon: const Icon(Icons.logout), onPressed: logout),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: logout,
+            tooltip: "Logout",
+          ),
         ],
       ),
-      body: Center(
-        child: Text(currentUser.toString()),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const CircleAvatar(
+              radius: 60,
+              backgroundColor: Colors.blueAccent,
+              child: Icon(
+                Icons.person,
+                size: 60,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "Welcome Back!",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              currentUser ?? "No email found",
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 40),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: logout,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  "Logout",
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
