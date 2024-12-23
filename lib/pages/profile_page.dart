@@ -19,12 +19,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = authService.getCurrentUserEmail();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
         actions: [
           IconButton(icon: const Icon(Icons.logout), onPressed: logout),
         ],
+      ),
+      body: Center(
+        child: Text(currentUser.toString()),
       ),
     );
   }
