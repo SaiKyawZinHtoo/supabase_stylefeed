@@ -36,10 +36,31 @@ class _NotePageState extends State<NotePage> {
                 onChanged: (value) {
                   setState(() {});
                 },
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  labelText: "Note Content",
+                  labelStyle: TextStyle(color: Colors.blueAccent),
                   hintText: "Enter your note here...",
-                  border: OutlineInputBorder(),
+                  hintStyle: TextStyle(color: Colors.grey.shade400),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.blueAccent),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.blue, width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide:
+                        BorderSide(color: Colors.grey.shade300, width: 1.5),
+                  ),
+                  prefixIcon: Icon(Icons.note, color: Colors.blueAccent),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 ),
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+                maxLines: null,
+                textInputAction: TextInputAction.done,
               ),
               actions: [
                 TextButton(
@@ -93,10 +114,29 @@ class _NotePageState extends State<NotePage> {
         content: TextField(
           controller: textController,
           autofocus: true,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
+            labelText: "Note Content",
+            labelStyle: TextStyle(color: Colors.blueAccent),
             hintText: "Edit your note...",
-            border: OutlineInputBorder(),
+            hintStyle: TextStyle(color: Colors.grey.shade400),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.blueAccent),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.blue, width: 2),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+            ),
+            prefixIcon: Icon(Icons.edit, color: Colors.blueAccent),
+            contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           ),
+          style: TextStyle(fontSize: 16, color: Colors.black87),
+          maxLines: null,
+          textInputAction: TextInputAction.done,
         ),
         actions: [
           TextButton(
