@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:superbase_project/auth/auth_service.dart';
+import 'package:superbase_project/note_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -83,6 +84,28 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 child: const Text(
                   "Logout",
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const NotePage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  "Go to Notes",
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
