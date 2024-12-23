@@ -48,38 +48,83 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Register"),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 50),
-        children: [
-          TextField(
-            controller: _emailController,
-            decoration: const InputDecoration(
-              labelText: "Email",
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Welcome!",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+              ),
             ),
-          ),
-          TextField(
-            controller: _passwordController,
-            //obscureText: true,
-            decoration: const InputDecoration(
-              labelText: "Password",
+            const SizedBox(height: 8),
+            const Text(
+              "Please fill in the details below to create an account.",
+              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
-          ),
-          TextField(
-            controller: _confirmPasswordController,
-            //obscureText: true,
-            decoration: const InputDecoration(
-              labelText: "Confirm Password",
+            const SizedBox(height: 30),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: "Email",
+                prefixIcon: const Icon(Icons.email),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: signUp,
-            child: const Text("Sign Up"),
-          ),
-          const SizedBox(height: 16),
-          //go to register page to sign up
-        ],
+            const SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Password",
+                prefixIcon: const Icon(Icons.lock),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _confirmPasswordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Confirm Password",
+                prefixIcon: const Icon(Icons.lock_outline),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: signUp,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  "Sign Up",
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
