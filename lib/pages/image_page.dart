@@ -12,6 +12,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   XFile? selectedImage;
+  bool isLoading = false;
 
   Future<void> pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -28,13 +29,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
     if (titleController.text.isEmpty ||
         descriptionController.text.isEmpty ||
         selectedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please fill all fields and select an image.'),
-        ),
-      );
+      _showSnackBar('Please fill all fields and select an image.');
       return;
     }
+
+    setState(() {
+      isLoading = true;
+    });
 
     try {
       await uploadPost(
@@ -42,17 +43,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
         descriptionController.text,
         selectedImage!,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Post uploaded successfully!'),
-        ),
-      );
+      _showSnackBar('Post uploaded successfully!');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-        ),
-      );
+      _showSnackBar('Error: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -64,14 +61,19 @@ class _CreatePostPageState extends State<CreatePostPage> {
     final storage = Supabase.instance.client.storage;
     final bucket = storage.from('images');
 
-    // Upload image to storage
+    // Generate a unique name for the image
     final imageName = DateTime.now().toIso8601String() + '.jpg';
 
     try {
+      // Upload image to storage
       final uploadResponse =
           await bucket.upload(imageName, File(imageFile.path));
 
-      // Get public URL
+      if (uploadResponse == null) {
+        throw Exception('Image upload failed.');
+      }
+
+      // Get public URL for the uploaded image
       final imageUrl = bucket.getPublicUrl(imageName);
 
       // Save data to the database
@@ -79,20 +81,21 @@ class _CreatePostPageState extends State<CreatePostPage> {
         'title': title,
         'description': description,
         'image_url': imageUrl,
+        'created_at': DateTime.now().toIso8601String(),
       });
 
       if (response.error != null) {
         throw Exception('Failed to save post: ${response.error!.message}');
       }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Post uploaded successfully!')),
-      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      throw Exception('Upload failed: $e');
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -126,10 +129,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
               child: const Text('Select Image'),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: handleUpload,
-              child: const Text('Upload Post'),
-            ),
+            isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: handleUpload,
+                    child: const Text('Upload Post'),
+                  ),
           ],
         ),
       ),
